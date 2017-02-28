@@ -1,49 +1,62 @@
-input.on('keyup', function(e){
-		console.log( '-------' );
-		console.log( this.selectionStart );
-		console.log( this.selectionEnd );
-		console.log( '-------' );
-		//if( e.key.length === 1 ){
-			var value = this.value.replace(/[^0-9a-zA-Z]/g,'');
-			var mask = '(___) ___-(___)';
-			var positions = {};
-			//var value = 'ABCDEFGHIJKLM';
-			var i, l, j, c;
-			var k = 0;
-			var thereEmpty = false;
+creditCardNumber.on('keydown', function(e){
+		var keynum = window.event ? window.event.keyCode : e.which;
 
-			console.log( value.length );
-			for( i=0; i<mask.length; i++ ){
-				l = mask.substr(i, 1);
-				if( l === '_' ){
-					positions[i] = '_';
-					k++;
+		if( keynum != 16 && keynum != 20 && keynum != 17 && keynum != 18 && keynum != 37 && keynum != 38 && keynum != 39 && keynum != 40 ){
+
+			var i, j;
+			var length = this.value.replace(/[^0-9a-zA-Z]/g,'');
+
+			length = length.length;
+
+			this.mask = this.getAttribute( 'data-mask' );
+			this.maskShow = !( this.getAttribute( 'data-mask-show' ) == 'false' );
+			this.positions = {};
+			this.positionsLength = 0;
+
+			for( i=0; i<this.mask.length; i++ ){
+				j = this.mask.substr(i, 1);
+				if( j === '_' ){
+					this.positions[i] = '_';
+					this.positionsLength++;
 				}
-				console.log( mask.substr(i, 1) );
 			}
 
-			console.log( positions );
+			if( length >= this.positionsLength && keynum != 8 ){
+				return false;
+			}
+		}
+	});
+
+	creditCardNumber.on('keyup', function(e){
+		//return true;
+		var keynum = window.event ? window.event.keyCode : e.which;
+
+		if( keynum != 16 && keynum != 20 && keynum != 17 && keynum != 18 && keynum != 37 && keynum != 38 && keynum != 39 && keynum != 40 ){
+			var value = this.value.replace(/[^0-9a-zA-Z]/g,'');
+			var i, j, p;
+
 			i = 0;
-			for( p in positions ){
+			for( p in this.positions ){
 				j = parseInt(p) + 1;
 				if( value.length == i ){
 					break;
 				}
-				if( positions[ p ] === '_' ){
-					positions[ p ] = value.substr(i, 1);
+				if( this.positions[ p ] === '_' ){
+					this.positions[ p ] = value.substr(i, 1);
 				}
-				console.log( j );
-				mask = mask.substr(0, p)+positions[ p ]+mask.substr(j, mask.length);
-				console.log( mask );
+				this.mask = this.mask.substr(0, p)+this.positions[ p ]+this.mask.substr(j, this.mask.length);
 				i++;
 			}
-			if( value.length < k ){
+			if( value.length < this.positionsLength ){
 				j--;
 			}
 
-			this.value = mask;
+			if( !this.maskShow ){
+				this.mask = this.mask.replace(/[^0-9a-zA-Z]/g,'');
+			}
+
+			this.value = this.mask;
 			this.selectionStart = j;
 			this.selectionEnd = j;
-		//}
-
+		}
 	});
